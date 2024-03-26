@@ -40,3 +40,47 @@ const uint8_t reverse_mixing_matrix[4][4] = {
     {0x0d, 0x09, 0x0e, 0x0b},
     {0x0b, 0x0d, 0x09, 0x0e}
 };
+
+void printState(uint8_t** state);
+
+void printBytes(uint8_t* bytes, int size);
+
+uint8_t xTimes(uint8_t a, uint8_t b);
+
+void printState(uint8_t** state){
+    printf("\n-----------");
+    for(int i = 0; i < 4; i++){
+        printf("\n");
+        for(int j = 0; j < 4; j++){
+            printf("%02x ", state[i][j]);
+        }
+    }
+    printf("\n");
+}
+
+void printBytes(uint8_t* bytes, int size){
+    printf("\n");
+    for(int i = 0; i < size; i++){
+        if(i % 16 == 0){printf("\n"); }
+        printf("%02x", bytes[i]);
+    }
+    printf("\n");
+}
+
+uint8_t xTimes(uint8_t a, uint8_t b){
+    uint8_t result = 0;
+    uint8_t carry;
+
+    for(int i = 0; i < 8; i++){
+        if(b & 1){
+            result ^= a;
+        }
+        carry = a & 0x80;
+        a<<=1;
+        if(carry){
+            a^=0x1b;
+        }
+        b>>=1;
+    }
+    return result;
+}
