@@ -10,11 +10,12 @@ void createFile(char* filepath, uint64_t size);
 
 void checkFiles(char* file1, char* file2);
 
+void exportKey(uint8_t* key, int key_length, char* filepath);
+
 long getBytesInFile(char* filepath);
 
 uint8_t* readKeyFromFile(char* keypath, int bytes_in_key);
 
-void exportKey(uint8_t* key, int key_length, char* filepath);
 
 
 

@@ -22,8 +22,6 @@ void invSubState(uint8_t** state);
 
 void addRoundKey(uint8_t** state, uint8_t** round_key);
 
-long removePadding(uint8_t* bytes, int bytes_in_file);
-
 void generateRoundConstants(uint8_t* Rcon, int Nr);
 
 void generateInverseSBox();
@@ -32,9 +30,14 @@ void generateKey(uint8_t* key, int Nc);
 
 void keyExpansion(uint8_t* key, uint8_t** round_keys, int Nk, int Nr);
 
+void exportNewKey(int key_length, char* filepath);
+
+long removePadding(uint8_t* bytes, int bytes_in_file);
+
 uint8_t* getNewKey(int key_length);
 
-void exportNewKey(int key_length, char* filepath);
+
+
 
 void cipher(uint8_t** state, int Nr, uint8_t** w){
     addRoundKey(state, &w[0]);
@@ -225,8 +228,7 @@ void keyExpansion(uint8_t* key, uint8_t** round_keys, int Nk, int Nr){
 
 uint8_t* getNewKey(int key_length){
     int Nc = key_length / 8;
-    //uint8_t* key = allocateList(Nc);
-    uint8_t* key = (uint8_t*)malloc(Nc * sizeof(uint8_t));
+    uint8_t* key = allocateList(Nc);
     generateKey(key, Nc);
     return key;
 }

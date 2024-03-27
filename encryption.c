@@ -1,8 +1,6 @@
 #include "algoFunctions.c"
 
 
-void generateKey(uint8_t* key, int Nc);
-
 void encryptFile(char* filepath, char* keypath, char* exportpath);
 
 void decryptFile(char* filepath, char* keypath, char* exportpath);
