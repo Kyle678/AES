@@ -16,6 +16,7 @@ long getBytesInFile(char* filepath);
 
 uint8_t* readKeyFromFile(char* keypath, int bytes_in_key);
 
+void fileToChunks(char* filepath, uint8_t*** chunks);
 
 
 
@@ -51,12 +52,58 @@ void writeBytesToFile(uint8_t* bytes, size_t size, char* filename){
     fclose(file);
 }
 
+void writeChunksToFile(uint8_t*** chunks, long num_bytes, char* filepath){
+    FILE *file = fopen(filepath, "wb");
+    if(file == NULL){
+        perror("Error writing to file");
+        return;
+    }
+
+    long num_chunks = num_bytes / 16;
+    if(num_chunks % 16 != 0){
+        num_chunks++;
+    }
+
+    int index = 0;
+
+    for(int i = 0; i < num_chunks; i++){
+        for(int j = 0; j < 4; j++){
+            for(int k = 0; k < 4; k++){
+                fwrite(&chunks[i][j][k], sizeof(uint8_t), 1, file);
+                index++;
+                if(index >= num_bytes){
+                    fclose(file);
+                    return;
+                }
+            }
+        }
+    }
+    fclose(file);
+}
+
 void fileToBytes(char* filepath, uint8_t* bytes){
     int index = 0;
     unsigned char buffer;
     FILE *file = fopen(filepath, "rb");
     while(fread(&buffer, sizeof(buffer), 1, file) == 1){
         bytes[index++] = (uint8_t) buffer;
+    }
+    fclose(file);
+}
+
+void fileToChunks(char* filepath, uint8_t*** chunks){
+    int x = 0, y = 0, z = 0;
+    unsigned char buffer;
+    FILE *file = fopen(filepath, "rb");
+    while(fread(&buffer, sizeof(buffer), 1, file) == 1){
+        chunks[x][y][z] = (uint8_t) buffer;
+        if(++z == 4){
+            z = 0;
+            if(++y == 4){
+                y = 0;
+                x++;
+            }
+        }
     }
     fclose(file);
 }

@@ -7,6 +7,8 @@ void decryptFile(char* filepath, char* keypath, char* exportpath);
 
 int main(){
 
+    generateInverseSBox();
+
     clock_t start, end;
     double cpu_time_used;
 
@@ -88,8 +90,6 @@ void encryptFile(char* filepath, char* keypath, char* exportpath){
     int Nr = Nk + 6; // number of rounds respective to the key_size
     int Nc = key_size / 8; // quantity of 8 bit numbers in key
 
-    generateInverseSBox();
-
     uint8_t** round_keys = initializeMatrix(4 * (Nr + 1), 4);
     keyExpansion(key, round_keys, Nk, Nr);
     free(key);
@@ -101,33 +101,21 @@ void encryptFile(char* filepath, char* keypath, char* exportpath){
     uint8_t padding = 16 - (bytes_in_file % 16);
     if(padding == 16){ padding = 0; }
 
-    uint8_t* bytes = allocateList(num_chunks * 16);
-    fileToBytes(filepath, bytes);
+    uint8_t*** chunks = initializeChunks(num_chunks);
 
-    for(int i = 0; i < padding; i++){
-        bytes[total_bytes - (1 + i)] = padding;
+    fileToChunks(filepath, chunks);
+
+    for(int i = 16 - padding; i < 16; i++){
+        chunks[num_chunks-1][i / 4][i % 4] = padding;
     }
-
-    uint8_t** state = initializeMatrix(4, 4);
-    uint8_t** chunks = initializeMatrix(num_chunks, 16);
-    uint8_t** encrypted_chunks = initializeMatrix(num_chunks, 16);
-    bytesToChunks(bytes, chunks, num_chunks);
-    free(bytes);
 
     for(int i = 0; i < num_chunks; i++){
-        chunkToState(chunks[i], state);
-        cipher(state, Nr, round_keys);
-        stateToChunk(state, encrypted_chunks[i]);
+        cipher(chunks[i], Nr, round_keys);
     }
-    clear(state, 4);
-    clear(chunks, num_chunks);
     clear(round_keys, 4 * (Nr + 1));
 
-    uint8_t* enc_bytes = chunksToBytes(encrypted_chunks, num_chunks);
-    
-    clear(encrypted_chunks, num_chunks);
-
-    writeBytesToFile(enc_bytes, (size_t) total_bytes, exportpath);
+    writeChunksToFile(chunks, total_bytes, exportpath);
+    clearChunks(chunks, num_chunks);
 
     printf("\nSuccessfully encrypted file.\n");
 }
@@ -143,44 +131,34 @@ void decryptFile(char* filepath, char* keypath, char* exportpath){
     long bytes_in_file = getBytesInFile(filepath);
     long num_chunks = bytesToTotalChunks(bytes_in_file);
 
-    uint8_t* bytes = allocateList(bytes_in_file);
-    fileToBytes(filepath, bytes);
-
     int key_size = bytes_in_key * 8; // number of bits that make up the key
     int Nk = key_size / 32; // number of 32 bit chunks in key
     int Nr = Nk + 6; // number of rounds respective to the key_size
     int Nc = key_size / 8; // quantity of 8 bit numbers in key
 
-    generateInverseSBox();
-
     uint8_t** round_keys = initializeMatrix(4 * (Nr + 1), 4);
     keyExpansion(key, round_keys, Nk, Nr);
+    free(key);
 
-    uint8_t** state = initializeMatrix(4, 4);
-    uint8_t** encrypted_chunks = initializeMatrix(num_chunks, 16);
-    uint8_t** unencrypted_chunks = initializeMatrix(num_chunks, 16);
-
-    uint8_t* encrypted_bytes = allocateList(num_chunks * 16);
-    fileToBytes(filepath, encrypted_bytes);
-    bytesToChunks(encrypted_bytes, encrypted_chunks, num_chunks);
+    uint8_t*** chunks = initializeChunks(num_chunks);
+    fileToChunks(filepath, chunks);
 
     for(int i = 0; i < num_chunks; i++){
-        chunkToState(encrypted_chunks[i], state);
-        invCipher(state, Nr, round_keys);
-        stateToChunk(state, unencrypted_chunks[i]);
+        invCipher(chunks[i], Nr, round_keys);
     }
-
-    uint8_t* unencrypted_bytes = chunksToBytes(unencrypted_chunks, num_chunks);
-
-    long final_size = removePadding(unencrypted_bytes, num_chunks * 16);
-
-    writeBytesToFile(unencrypted_bytes, final_size, exportpath);
-
-    free(key);
-    free(bytes);
-    free(encrypted_bytes);
     clear(round_keys, 4 * (Nr + 1));
-    clear(unencrypted_chunks, num_chunks);
-    clear(encrypted_chunks, num_chunks);
-    clear(state, 4);
+
+    uint8_t padding = chunks[num_chunks - 1][3][3];
+    uint8_t is_padded = 1;
+
+    for(int i = 16 - padding; i < 16; i++){
+        if(chunks[num_chunks - 1][i / 4][i % 4] != padding){
+            is_padded = 0;
+            break;
+        }
+    }
+    padding *= is_padded;
+
+    writeChunksToFile(chunks, (num_chunks * 16) - padding, exportpath);
+    clearChunks(chunks, num_chunks);
 }

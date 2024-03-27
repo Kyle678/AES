@@ -8,7 +8,7 @@ uint8_t* allocateList(int size);
 
 uint8_t** initializeMatrix(int n, int m);
 
-
+void clearChunks(uint8_t*** chunks, long num_chunks);
 
 
 uint8_t* allocateList(int size){
@@ -26,8 +26,15 @@ uint8_t** initializeMatrix(int n, int m){
     return state;
 }
 
-void empty(uint8_t* A){
-    free(A);
+uint8_t*** initializeChunks(int num_chunks){
+    uint8_t*** chunks = (uint8_t***)malloc(num_chunks * sizeof(uint8_t**));
+    for(int i = 0; i < num_chunks; i++){
+        chunks[i] = (uint8_t**)malloc(4 * sizeof(uint8_t*));
+        for(int j = 0; j < 4; j++){
+            chunks[i][j] = (uint8_t*)malloc(4 * sizeof(uint8_t));
+        }
+    }
+    return chunks;
 }
 
 void clear(uint8_t** A, int width){
@@ -35,6 +42,12 @@ void clear(uint8_t** A, int width){
         free(A[i]);
     }
     free(A);
+}
+
+void clearChunks(uint8_t*** chunks, long num_chunks){
+    for(int i = 0; i < num_chunks; i++){
+        clear(chunks[i], 4);
+    }
 }
 
 long bytesToTotalChunks(long bytes){
