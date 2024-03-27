@@ -122,6 +122,7 @@ long getBytesInFile(char* filepath){
 
 uint8_t* readKeyFromFile(char* keypath, int bytes_in_key){
 
+    unsigned int* temp_key = (unsigned int*)malloc(bytes_in_key * sizeof(unsigned int));
     uint8_t* key = allocateList(bytes_in_key);
     FILE *file;
 
@@ -133,9 +134,14 @@ uint8_t* readKeyFromFile(char* keypath, int bytes_in_key){
 
     uint8_t index = 0;
 
-    while(fscanf(file, "%02x", &key[index++]) == 1) {}
+    while(fscanf(file, "%02x", &temp_key[index++]) == 1) {}
 
     fclose(file);
+
+    for(int i = 0; i < bytes_in_key; i++){
+        key[i] = temp_key[i];
+    }
+    free(temp_key);
 
     return key;
 }
