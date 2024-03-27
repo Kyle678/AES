@@ -1,5 +1,6 @@
 #include "algoFunctions.c"
 
+
 void generateKey(uint8_t* key, int Nc);
 
 void encryptFile(char* filepath, char* keypath, char* exportpath);
@@ -93,6 +94,7 @@ void encryptFile(char* filepath, char* keypath, char* exportpath){
 
     uint8_t** round_keys = initializeMatrix(4 * (Nr + 1), 4);
     keyExpansion(key, round_keys, Nk, Nr);
+    free(key);
 
     long bytes_in_file = getBytesInFile(filepath);
     long num_chunks = bytesToTotalChunks(bytes_in_file);
@@ -112,39 +114,22 @@ void encryptFile(char* filepath, char* keypath, char* exportpath){
     uint8_t** chunks = initializeMatrix(num_chunks, 16);
     uint8_t** encrypted_chunks = initializeMatrix(num_chunks, 16);
     bytesToChunks(bytes, chunks, num_chunks);
+    free(bytes);
 
     for(int i = 0; i < num_chunks; i++){
         chunkToState(chunks[i], state);
         cipher(state, Nr, round_keys);
         stateToChunk(state, encrypted_chunks[i]);
     }
+    clear(state, 4);
+    clear(chunks, num_chunks);
+    clear(round_keys, 4 * (Nr + 1));
+
     uint8_t* enc_bytes = chunksToBytes(encrypted_chunks, num_chunks);
+    
+    clear(encrypted_chunks, num_chunks);
 
     writeBytesToFile(enc_bytes, (size_t) total_bytes, exportpath);
-
-    uint8_t* un_bytes = allocateList(total_bytes);
-    uint8_t** masked_chunks = initializeMatrix(num_chunks, 16);
-    
-    fileToBytes(exportpath, un_bytes);
-
-    uint8_t** unencrypted_chunks = initializeMatrix(num_chunks, 16);
-    bytesToChunks(un_bytes, masked_chunks, num_chunks);
-
-    for(int i = 0; i < num_chunks; i++){
-        chunkToState(encrypted_chunks[i], state);
-        invCipher(state, Nr, round_keys);
-        stateToChunk(state, unencrypted_chunks[i]);
-    }
-
-    uint8_t* unenc_bytes = chunksToBytes(unencrypted_chunks, num_chunks);
-
-    clear(round_keys, 4 * (Nr + 1));
-    clear(chunks, num_chunks);
-    clear(encrypted_chunks, num_chunks);
-    clear(state, 4);
-    free(enc_bytes);
-    free(bytes);
-    free(key);
 
     printf("\nSuccessfully encrypted file.\n");
 }
