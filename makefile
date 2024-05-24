@@ -5,6 +5,7 @@ CC := gcc
 CFLAGS := -Wall -Werror -g
 
 # Directories
+INCDIR := include
 SRCDIR := src
 OBJDIR := obj
 
@@ -26,7 +27,7 @@ $(EXEC): $(OBJECTS)
 
 # Compilation
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -I$(INCDIR) -c -o $@ $<
 
 # Create obj directory if it doesn't exist
 $(OBJDIR):
