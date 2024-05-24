@@ -1,4 +1,7 @@
 #include "algoFunctions.h"
+#include "matrixHandling.h"
+#include "fileHandling.h"
+#include "memoryHandling.h"
 #include "help.h"
 
 void cipher(uint8_t** state, int Nr, uint8_t** w){
@@ -134,10 +137,10 @@ void generateRoundConstants(uint8_t* Rcon, int Nr){
 
 void generateInverseSBox(){
     inverse_aes_box = allocateList(SBOX_SIZE);
-    int x, y, z;
+    int x;
     for(int i = 0; i < SBOX_SIZE; i++){
-        z = aes_sbox[i];
-        inverse_aes_box[z] = i;
+        x = aes_sbox[i];
+        inverse_aes_box[x] = i;
     }
 }
 
@@ -166,7 +169,7 @@ void keyExpansion(uint8_t* key, uint8_t** round_keys, int Nk, int Nr){
 
     uint8_t temp[4];
 
-    for(i; i < 4 * (Nr + 1); i++){
+    for(; i < 4 * (Nr + 1); i++){
         for(int j = 0; j < 4; j++){
             temp[j] = round_keys[i - 1][j];
         }

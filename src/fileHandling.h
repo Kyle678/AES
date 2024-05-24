@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void writeTextToFile(uint8_t* text, int size, char* filepath);
 
@@ -22,5 +23,7 @@ long getBytesInFile(char* filepath);
 uint8_t* readKeyFromFile(char* keypath, int bytes_in_key);
 
 void fileToChunks(char* filepath, uint8_t*** chunks);
+
+void writeChunksToFile(uint8_t*** chunks, long num_bytes, char* filepath);
 
 #endif

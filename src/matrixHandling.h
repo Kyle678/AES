@@ -2,6 +2,7 @@
 #define matrixHandling_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 void stateToChunk(uint8_t** state, uint8_t* chunk);
 

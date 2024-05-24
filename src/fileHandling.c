@@ -1,4 +1,5 @@
 #include "fileHandling.h"
+#include "memoryHandling.h"
 
 void writeTextToFile(uint8_t* text, int size, char* filepath){
     FILE *file = fopen(filepath, "w");

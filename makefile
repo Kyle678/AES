@@ -1,25 +1,37 @@
+# Compiler
 CC := gcc
 
-final: encryption.o algoFunctions.o fileHandling.o matrixHandling.o memoryHandling.o help.o
-		$(CC) encryption.o algoFunctions.o fileHandling.o matrixHandling.o memoryHandling.o help.o -o final
+# Compiler flags
+CFLAGS := -Wall -Werror -g
 
-encryption.o: encryption.c encryption.h help.h
-		$(CC) -c encryption.c
+# Directories
+SRCDIR := src
+OBJDIR := obj
 
-algoFunctions.o: algoFunctions.c algoFunctions.h help.h
-		$(CC) -c algoFunctions.c
+# Sources
+SOURCES := $(wildcard $(SRCDIR)/*.c)
 
-fileHandling.o: fileHandling.c fileHandling.h 
-		$(CC) -c fileHandling.c
+# Object files
+OBJECTS := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
 
-matrixHandling.o: matrixHandling.c matrixHandling.h 
-		$(CC) -c matrixHandling.c
+# Executable
+EXEC := final
 
-memoryHandling.o: memoryHandling.c memoryHandling.h
-		$(CC) -c memoryHandling.c
+# Default target
+all: $(OBJDIR) $(EXEC)
 
-help.o: help.c help.h
-		$(CC) -c help.c
+# Linking
+$(EXEC): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^
 
+# Compilation
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Create obj directory if it doesn't exist
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
+# Clean
 clean:
-		del *.o final
+	del $(OBJDIR) $(EXEC)

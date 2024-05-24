@@ -1,4 +1,5 @@
 #include "matrixHandling.h"
+#include "memoryHandling.h"
 
 uint8_t* chunksToBytes(uint8_t** chunks, long num_chunks){
     uint8_t* bytes = allocateList(num_chunks * 16);
