@@ -1,9 +1,5 @@
-#include "algoFunctions.c"
-
-
-void encryptFile(char* filepath, char* keypath, char* exportpath);
-
-void decryptFile(char* filepath, char* keypath, char* exportpath);
+#include "encryption.h"
+#include "help.h"
 
 int main(){
 
