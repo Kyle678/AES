@@ -1,9 +1,9 @@
-#include "algoFunctions.c"
-
-
-void encryptFile(char* filepath, char* keypath, char* exportpath);
-
-void decryptFile(char* filepath, char* keypath, char* exportpath);
+#include "encryption.h"
+#include "algoFunctions.h"
+#include "memoryHandling.h"
+#include "fileHandling.h"
+#include "matrixHandling.h"
+#include "help.h"
 
 int main(){
 
@@ -33,7 +33,7 @@ int main(){
                 printf("Enter key size: ");
                 scanf("%d", &key_option);
                 printf("\nEnter file to export to: ");
-                scanf("%s", &keypath);
+                scanf("%s", keypath);
                 if(key_option > 0 && key_option < 4){
                     int key_lengths[] = {128, 192, 256};
                     exportNewKey(key_lengths[key_option - 1], keypath);
@@ -44,11 +44,11 @@ int main(){
                 break;
             case 2:
                 printf("\nEnter file path: ");
-                scanf("%s", &filepath);
+                scanf("%s", filepath);
                 printf("\nEnter key path: ");
-                scanf("%s", &keypath);
+                scanf("%s", keypath);
                 printf("\nEnter file to export to: ");
-                scanf("%s", &exportpath);
+                scanf("%s", exportpath);
                 start = clock();
                 encryptFile(filepath, keypath, exportpath);
                 end = clock();
@@ -57,11 +57,11 @@ int main(){
                 break;
             case 3:
                 printf("\nEnter file path: ");
-                scanf("%s", &filepath);
+                scanf("%s", filepath);
                 printf("\nEnter key path: ");
-                scanf("%s", &keypath);
+                scanf("%s", keypath);
                 printf("\nEnter file to export to: ");
-                scanf("%s", &exportpath);
+                scanf("%s", exportpath);
                 start=clock();
                 decryptFile(filepath, keypath, exportpath);
                 end = clock();
@@ -88,7 +88,7 @@ void encryptFile(char* filepath, char* keypath, char* exportpath){
     int key_size = bytes_in_key * 8; // number of bits that make up the key
     int Nk = key_size / 32; // number of 32 bit chunks in key
     int Nr = Nk + 6; // number of rounds respective to the key_size
-    int Nc = key_size / 8; // quantity of 8 bit numbers in key
+    //int Nc = key_size / 8; // quantity of 8 bit numbers in key
 
     uint8_t** round_keys = initializeMatrix(4 * (Nr + 1), 4);
     keyExpansion(key, round_keys, Nk, Nr);
@@ -134,7 +134,7 @@ void decryptFile(char* filepath, char* keypath, char* exportpath){
     int key_size = bytes_in_key * 8; // number of bits that make up the key
     int Nk = key_size / 32; // number of 32 bit chunks in key
     int Nr = Nk + 6; // number of rounds respective to the key_size
-    int Nc = key_size / 8; // quantity of 8 bit numbers in key
+    //int Nc = key_size / 8; // quantity of 8 bit numbers in key
 
     uint8_t** round_keys = initializeMatrix(4 * (Nr + 1), 4);
     keyExpansion(key, round_keys, Nk, Nr);

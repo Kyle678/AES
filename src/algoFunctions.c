@@ -1,43 +1,8 @@
-#include "fileHandling.c"
-
-void cipher(uint8_t** state, int Nr, uint8_t** w);
-
-void invCipher(uint8_t** state, int Nr, uint8_t** w);
-
-void mixColumns(uint8_t** state);
-
-void invMixColumns(uint8_t** state);
-
-void shiftRows(uint8_t** state);
-
-void invShiftRows(uint8_t** state);
-
-void subBytes(uint8_t* byte);
-
-void subWord(uint8_t* bytes);
-
-void subState(uint8_t** state);
-
-void invSubState(uint8_t** state);
-
-void addRoundKey(uint8_t** state, uint8_t** round_key);
-
-void generateRoundConstants(uint8_t* Rcon, int Nr);
-
-void generateInverseSBox();
-
-void generateKey(uint8_t* key, int Nc);
-
-void keyExpansion(uint8_t* key, uint8_t** round_keys, int Nk, int Nr);
-
-void exportNewKey(int key_length, char* filepath);
-
-long removePadding(uint8_t* bytes, int bytes_in_file);
-
-uint8_t* getNewKey(int key_length);
-
-
-
+#include "algoFunctions.h"
+#include "matrixHandling.h"
+#include "fileHandling.h"
+#include "memoryHandling.h"
+#include "help.h"
 
 void cipher(uint8_t** state, int Nr, uint8_t** w){
     addRoundKey(state, &w[0]);
@@ -172,10 +137,10 @@ void generateRoundConstants(uint8_t* Rcon, int Nr){
 
 void generateInverseSBox(){
     inverse_aes_box = allocateList(SBOX_SIZE);
-    int x, y, z;
+    int x;
     for(int i = 0; i < SBOX_SIZE; i++){
-        z = aes_sbox[i];
-        inverse_aes_box[z] = i;
+        x = aes_sbox[i];
+        inverse_aes_box[x] = i;
     }
 }
 
@@ -204,7 +169,7 @@ void keyExpansion(uint8_t* key, uint8_t** round_keys, int Nk, int Nr){
 
     uint8_t temp[4];
 
-    for(i; i < 4 * (Nr + 1); i++){
+    for(; i < 4 * (Nr + 1); i++){
         for(int j = 0; j < 4; j++){
             temp[j] = round_keys[i - 1][j];
         }
