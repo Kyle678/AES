@@ -34,4 +34,5 @@ $(OBJDIR):
 
 # Clean
 clean:
-	del $(OBJDIR) $(EXEC)
+	rmdir /s /q $(OBJDIR)
+	del $(EXEC).exe
